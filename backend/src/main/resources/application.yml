@@ -15,3 +15,6 @@ spring:
 
   flyway:
     enabled: true
+    url: jdbc:postgresql://postgres:5432/autoloader_dispatch
+    user: postgres
+    password: mypassword

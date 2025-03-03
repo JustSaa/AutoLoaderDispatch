@@ -1,4 +1,4 @@
-package ru.autoloader.entities;
+package ru.autoloader.model;
 
 import jakarta.persistence.*;
 import lombok.*;

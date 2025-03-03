@@ -1,27 +1,29 @@
-package ru.autoloader.entities;
+package ru.autoloader.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "warehouses")
+@Table(name = "loaders")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Warehouse {
+public class Loader {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String address;
+    private LoaderStatus status; // IDLE, BUSY, OFFLINE
 
     @Column(nullable = false)
-    private Double latitude;  // Координаты склада
+    private Double latitude; // Координаты погрузчика
+
     @Column(nullable = false)
     private Double longitude;
 }
