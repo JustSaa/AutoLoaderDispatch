@@ -18,3 +18,12 @@ spring:
     url: jdbc:postgresql://postgres:5432/autoloader_dispatch
     user: postgres
     password: mypassword
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    mappings:
+      enabled: true
