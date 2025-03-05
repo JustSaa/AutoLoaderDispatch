@@ -3,6 +3,7 @@ package ru.autoloader.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.autoloader.exception.RequestNotFoundException;
 import ru.autoloader.model.Request;
 import ru.autoloader.model.RequestStatus;
 import ru.autoloader.repository.RequestRepository;
@@ -23,8 +24,9 @@ public class RequestService {
     }
 
     // Найти заявку по ID
-    public Optional<Request> getRequestById(Long id) {
-        return requestRepository.findById(id);
+    public Request getRequestById(Long id) {
+        return requestRepository.findById(id)
+                .orElseThrow(() -> new RequestNotFoundException("Request with id " + id + " not found"));
     }
 
     // Создать новую заявку
@@ -42,5 +44,12 @@ public class RequestService {
             return requestRepository.save(request);
         }
         throw new RuntimeException("Заявка не найдена!");
+    }
+
+    public void deleteRequest(Long id) {
+        if (!requestRepository.existsById(id)) {
+            throw new RequestNotFoundException("Request with id " + id + " not found");
+        }
+        requestRepository.deleteById(id);
     }
 }

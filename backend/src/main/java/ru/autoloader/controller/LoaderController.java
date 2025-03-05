@@ -25,9 +25,8 @@ public class LoaderController {
     // Найти погрузчик по ID
     @GetMapping("/{id}")
     public ResponseEntity<Loader> getLoaderById(@PathVariable Long id) {
-        Optional<Loader> loader = loaderService.getLoaderById(id);
-        return loader.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Loader loader = loaderService.getLoaderById(id);
+        return ResponseEntity.ok(loader);
     }
 
     // Добавить нового погрузчика

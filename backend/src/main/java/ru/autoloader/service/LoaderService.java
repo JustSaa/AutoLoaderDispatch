@@ -3,6 +3,7 @@ package ru.autoloader.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.autoloader.exception.LoaderNotFoundException;
 import ru.autoloader.model.Loader;
 import ru.autoloader.repository.LoaderRepository;
 
@@ -22,12 +23,16 @@ public class LoaderService {
     }
 
     // Найти погрузчик по ID
-    public Optional<Loader> getLoaderById(Long id) {
-        return loaderRepository.findById(id);
+    public Loader getLoaderById(Long id) {
+        return loaderRepository.findById(id)
+                .orElseThrow(() -> new LoaderNotFoundException("Loader with id " + id + " not found"));
     }
 
     // Добавить нового погрузчика
     public Loader createLoader(Loader loader) {
+        if (loader.getName() == null || loader.getName().isEmpty()) {
+            throw new IllegalArgumentException("Loader name cannot be null or empty");
+        }
         return loaderRepository.save(loader);
     }
 

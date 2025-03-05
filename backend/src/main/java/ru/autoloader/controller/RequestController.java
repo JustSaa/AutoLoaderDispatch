@@ -24,18 +24,24 @@ public class RequestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Request> getRequestById(@PathVariable Long id) {
-        Optional<Request> request = requestService.getRequestById(id);
-        return request.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Request request = requestService.getRequestById(id);
+        return ResponseEntity.ok(request);
     }
 
     @PostMapping
-    public Request createRequest(@RequestBody Request request) {
-        return requestService.createRequest(request);
+    public ResponseEntity<Request> createRequest(@RequestBody Request request) {
+        Request savedRequest = requestService.createRequest(request);
+        return ResponseEntity.status(201).body(savedRequest);
     }
 
     @PutMapping("/{id}/status")
     public Request updateRequestStatus(@PathVariable Long id, @RequestParam RequestStatus status) {
         return requestService.updateRequestStatus(id, status);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRequest(@PathVariable Long id) {
+        requestService.deleteRequest(id);
+        return ResponseEntity.noContent().build();
     }
 }
