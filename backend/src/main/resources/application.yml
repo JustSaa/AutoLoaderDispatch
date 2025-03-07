@@ -19,6 +19,12 @@ spring:
     user: postgres
     password: mypassword
 
+  spring-doc:
+    api-docs:
+      enabled: true
+      swagger-ui:
+        enabled: true
+
 management:
   endpoints:
     web:

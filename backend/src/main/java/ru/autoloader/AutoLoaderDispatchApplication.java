@@ -7,8 +7,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "ru.autoloader")  // ✅ Добавляем сканирование контроллеров
-@EnableJpaRepositories("ru.autoloader.repository")  // ✅ Добавляем репозитории
+@ComponentScan(basePackages = "ru.autoloader")
+@EnableJpaRepositories("ru.autoloader.repository")
 @EntityScan("ru.autoloader.model")
 public class AutoLoaderDispatchApplication {
 
