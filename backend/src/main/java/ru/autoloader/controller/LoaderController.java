@@ -2,6 +2,7 @@ package ru.autoloader.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +43,13 @@ public class LoaderController {
     public ResponseEntity<Void> deleteLoader(@PathVariable Long id) {
         loaderService.deleteLoader(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Обновить погрузчика", description = "Обновляет погрузчика в БД")
+    public ResponseEntity<Loader> updateLoader(@PathVariable Long id,
+                                               @Valid @RequestBody Loader loader) {
+        Loader updatedLoader = loaderService.updateLoader(id, loader);
+        return ResponseEntity.ok(updatedLoader);
     }
 }

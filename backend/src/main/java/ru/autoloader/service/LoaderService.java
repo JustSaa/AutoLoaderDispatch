@@ -1,8 +1,12 @@
 package ru.autoloader.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.autoloader.exception.LoaderNotFoundException;
 import ru.autoloader.model.Loader;
 import ru.autoloader.repository.LoaderRepository;
@@ -39,5 +43,18 @@ public class LoaderService {
     // Удалить погрузчика
     public void deleteLoader(Long id) {
         loaderRepository.deleteById(id);
+    }
+
+    // Обновление данных погрузчика
+    public Loader updateLoader(Long id, Loader newLoaderData) {
+        return loaderRepository.findById(id)
+                .map(existingLoader -> {
+                    existingLoader.setName(newLoaderData.getName());
+                    existingLoader.setStatus(newLoaderData.getStatus());
+                    existingLoader.setLatitude(newLoaderData.getLatitude());
+                    existingLoader.setLongitude(newLoaderData.getLongitude());
+                    return loaderRepository.save(existingLoader);
+                })
+                .orElseThrow(() -> new LoaderNotFoundException("Loader not found with id: " + id));
     }
 }
