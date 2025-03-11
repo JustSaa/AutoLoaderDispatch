@@ -15,3 +15,21 @@ spring:
 
   flyway:
     enabled: true
+    url: jdbc:postgresql://postgres:5432/autoloader_dispatch
+    user: postgres
+    password: mypassword
+
+  spring-doc:
+    api-docs:
+      enabled: true
+      swagger-ui:
+        enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    mappings:
+      enabled: true

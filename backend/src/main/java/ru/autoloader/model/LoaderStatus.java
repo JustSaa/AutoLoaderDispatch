@@ -1,4 +1,4 @@
-package ru.autoloader.entities;
+package ru.autoloader.model;
 
 public enum LoaderStatus {
     IDLE,      // Свободен
