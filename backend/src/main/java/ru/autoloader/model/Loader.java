@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "loaders")
 @Getter
@@ -34,4 +36,7 @@ public class Loader {
     @DecimalMin(value = "-180.0", message = "Долгота должна быть в пределах -180.0 до 180.0")
     @DecimalMax(value = "180.0", message = "Долгота должна быть в пределах -180.0 до 180.0")
     private Double longitude;
+
+    @Column(name = "last_completed_at")
+    private LocalDateTime lastCompletedAt;
 }

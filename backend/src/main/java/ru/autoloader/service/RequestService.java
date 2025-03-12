@@ -9,6 +9,7 @@ import ru.autoloader.model.*;
 import ru.autoloader.repository.LoaderRepository;
 import ru.autoloader.repository.RequestRepository;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -43,30 +44,38 @@ public class RequestService {
         log.info("Создание новой заявки: {}", request);
         request.setStatus(RequestStatus.NEW);
 
-        // Находим ближайшего свободного погрузчика
-        Loader nearestLoader = findNearestAvailableLoader(request.getWarehouse());
+        // Находим наиболее подходящего свободного погрузчика
+        Loader bestLoader = findBestAvailableLoader(request.getWarehouse());
 
-        if (nearestLoader != null) {
-            request.setLoader(nearestLoader);
-            nearestLoader.setStatus(LoaderStatus.BUSY); // Обновляем статус погрузчика
-            loaderRepository.save(nearestLoader); // Сохраняем изменения в БД
+        if (bestLoader != null) {
+            request.setLoader(bestLoader);
+            bestLoader.setStatus(LoaderStatus.BUSY); // Обновляем статус погрузчика
+            loaderRepository.save(bestLoader); // Сохраняем изменения в БД
         }
 
         return requestRepository.save(request);
     }
 
-    // Обновить статус заявки
+    // Обновление статуса заявки
     public Request updateRequestStatus(Long id, RequestStatus status) {
         log.info("Обновление статуса заявки ID {} -> {}", id, status);
-        return requestRepository.findById(id)
-                .map(request -> {
-                    request.setStatus(status);
-                    return requestRepository.save(request);
-                })
+        Request request = requestRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Ошибка! Заявка с ID {} не найдена", id);
-                    return new RequestNotFoundException("Request with id " + id + " not found");
+                    return new RequestNotFoundException("Request not found with id: " + id);
                 });
+
+        request.setStatus(status);
+
+        // Если заявка завершена - обновляем время у погрузчика
+        if (status == RequestStatus.DONE && request.getLoader() != null) {
+            Loader loader = request.getLoader();
+            loader.setLastCompletedAt(LocalDateTime.now());
+            loader.setStatus(LoaderStatus.IDLE); // Освобождаем погрузчик
+            loaderRepository.save(loader);
+        }
+
+        return requestRepository.save(request);
     }
 
     public void deleteRequest(Long id) {
@@ -78,30 +87,20 @@ public class RequestService {
         requestRepository.deleteById(id);
     }
 
-    private Loader findNearestAvailableLoader(Warehouse warehouse) {
-        List<Loader> availableLoaders = loaderRepository.findByStatus(LoaderStatus.IDLE);
-
-        if (availableLoaders.isEmpty()) {
-            return null; // Нет свободных погрузчиков
-        }
-
-        return availableLoaders.stream()
-                .min(Comparator.comparingDouble(loader -> calculateDistance(
-                        warehouse.getLatitude(), warehouse.getLongitude(),
-                        loader.getLatitude(), loader.getLongitude())))
+    private Loader findBestAvailableLoader(Warehouse warehouse) {
+        return loaderRepository.findAll().stream()
+                .filter(loader -> loader.getStatus() == LoaderStatus.IDLE) // Только свободные
+                .sorted(Comparator
+                        .comparing((Loader l) -> getDistance(l, warehouse)) // 1. Сортировка по расстоянию
+                        .thenComparing(l -> l.getLastCompletedAt() != null ? l.getLastCompletedAt() : LocalDateTime.MIN) // 2. По времени завершения
+                )
+                .findFirst()
                 .orElse(null);
     }
 
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371000; // Радиус Земли в метрах
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Расстояние в метрах
+    private double getDistance(Loader loader, Warehouse warehouse) {
+        double dx = loader.getLatitude() - warehouse.getLatitude();
+        double dy = loader.getLongitude() - warehouse.getLongitude();
+        return Math.sqrt(dx * dx + dy * dy);
     }
 }
