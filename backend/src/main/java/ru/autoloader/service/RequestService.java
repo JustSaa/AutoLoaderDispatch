@@ -45,9 +45,11 @@ public class RequestService {
         request.setStatus(RequestStatus.NEW);
 
         // Находим наиболее подходящего свободного погрузчика
+        log.info("Поиск погрузчика для скалада: {}", request.getWarehouse());
         Loader bestLoader = findBestAvailableLoader(request.getWarehouse());
 
         if (bestLoader != null) {
+            log.info("Погрузчик найден: {}", bestLoader);
             request.setLoader(bestLoader);
             bestLoader.setStatus(LoaderStatus.BUSY); // Обновляем статус погрузчика
             loaderRepository.save(bestLoader); // Сохраняем изменения в БД

@@ -1,1 +1,0 @@
-ALTER TABLE loaders ADD COLUMN last_completed_at TIMESTAMP NULL;

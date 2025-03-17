@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.autoloader.model.Loader;
@@ -11,6 +12,7 @@ import ru.autoloader.service.LoaderService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/loaders")
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class LoaderController {
     @GetMapping
     @Operation(summary = "Получить всех погрузчиков", description = "Возвращает список всех погрузчиков")
     public List<Loader> getAllLoaders() {
+        log.info("Получен запрос на список всех погрузчиков");
         return loaderService.getAllLoaders();
     }
 

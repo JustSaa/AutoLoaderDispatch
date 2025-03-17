@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="2" author="salavat">
+        <!-- Предзаполнение таблицы пользователей -->
+        <insert tableName="users">
+            <column name="id" value="1"/>
+            <column name="username" value="admin"/>
+            <column name="password" value="admin123"/>
+            <column name="role" value="ADMIN"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" value="2"/>
+            <column name="username" value="operator"/>
+            <column name="password" value="operator123"/>
+            <column name="role" value="OPERATOR"/>
+        </insert>
+
+        <!-- Предзаполнение таблицы складов -->
+        <insert tableName="warehouses">
+            <column name="id" value="1"/>
+            <column name="name" value="Main Warehouse"/>
+            <column name="address" value="123 Industrial Ave"/>
+            <column name="latitude" value="55.7558"/>
+            <column name="longitude" value="37.6173"/>
+        </insert>
+        <insert tableName="warehouses">
+            <column name="id" value="2"/>
+            <column name="name" value="Backup Warehouse"/>
+            <column name="address" value="456 Logistic St"/>
+            <column name="latitude" value="48.8566"/>
+            <column name="longitude" value="2.3522"/>
+        </insert>
+
+        <!-- Предзаполнение таблицы погрузчиков -->
+        <insert tableName="loaders">
+            <column name="id" value="1"/>
+            <column name="name" value="Loader A"/>
+            <column name="status" value="IDLE"/>
+            <column name="latitude" value="55.7558"/>
+            <column name="longitude" value="37.6173"/>
+            <column name="last_completed_at" value="2025-03-17T10:00:00"/>
+        </insert>
+        <insert tableName="loaders">
+            <column name="id" value="2"/>
+            <column name="name" value="Loader B"/>
+            <column name="status" value="BUSY"/>
+            <column name="latitude" value="48.8566"/>
+            <column name="longitude" value="2.3522"/>
+            <column name="last_completed_at" value="2025-03-17T09:45:00"/>
+        </insert>
+
+        <!-- Предзаполнение таблицы заявок -->
+        <insert tableName="requests">
+            <column name="id" value="1"/>
+            <column name="loader_id" value="1"/>
+            <column name="user_id" value="2"/>
+            <column name="warehouse_id" value="1"/>
+            <column name="status" value="NEW"/>
+            <column name="created_at" value="2025-03-17T08:30:00"/>
+        </insert>
+
+        <!-- Предзаполнение таблицы задач -->
+        <insert tableName="tasks">
+            <column name="id" value="1"/>
+            <column name="loader_id" value="2"/>
+            <column name="warehouse_id" value="2"/>
+            <column name="description" value="Перевозка коробок"/>
+            <column name="assigned_at" value="2025-03-17T09:00:00"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
