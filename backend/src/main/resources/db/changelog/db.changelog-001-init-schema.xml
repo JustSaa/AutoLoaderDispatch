@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="salavat">
+        <!-- Таблица пользователей -->
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Таблица складов -->
+        <createTable tableName="warehouses">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="address" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Таблица погрузчиков -->
+        <createTable tableName="loaders">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_completed_at" type="timestamp"/>
+        </createTable>
+
+        <!-- Таблица заявок -->
+        <createTable tableName="requests">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="loader_id" type="bigint"/>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="warehouse_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Таблица задач -->
+        <createTable tableName="tasks">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="loader_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="warehouse_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="assigned_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Добавляем внешние ключи -->
+        <addForeignKeyConstraint constraintName="fk_requests_loader"
+                                 baseTableName="requests" baseColumnNames="loader_id"
+                                 referencedTableName="loaders" referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <addForeignKeyConstraint constraintName="fk_requests_user"
+                                 baseTableName="requests" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_requests_warehouse"
+                                 baseTableName="requests" baseColumnNames="warehouse_id"
+                                 referencedTableName="warehouses" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_tasks_loader"
+                                 baseTableName="tasks" baseColumnNames="loader_id"
+                                 referencedTableName="loaders" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_tasks_warehouse"
+                                 baseTableName="tasks" baseColumnNames="warehouse_id"
+                                 referencedTableName="warehouses" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

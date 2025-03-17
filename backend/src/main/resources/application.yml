@@ -7,17 +7,14 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
-  flyway:
-    enabled: true
-    url: jdbc:postgresql://postgres:5432/autoloader_dispatch
-    user: postgres
-    password: mypassword
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
 
   spring-doc:
     api-docs:
@@ -33,3 +30,8 @@ management:
   endpoint:
     mappings:
       enabled: true
+
+logging:
+  level:
+    root: INFO
+    ru.autoloader: DEBUG
