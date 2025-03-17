@@ -33,11 +33,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation error",
+                errors
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -46,11 +52,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException ex) {
+    public ResponseEntity<ApiError> handleConstraintViolationException(ConstraintViolationException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getConstraintViolations().forEach(violation ->
                 errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                "Constraint violation",
+                errors
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
