@@ -31,6 +31,7 @@ public class LoaderController {
     @GetMapping("/{id}")
     @Operation(summary = "Найти погрузчик по ID", description = "Возвращает погрузчик по его ID")
     public ResponseEntity<Loader> getLoaderById(@PathVariable Long id) {
+        log.info("Получен запрос на поиск погрузчика с ID: {}", id);
         Loader loader = loaderService.getLoaderById(id);
         return ResponseEntity.ok(loader);
     }
@@ -38,12 +39,14 @@ public class LoaderController {
     @PostMapping
     @Operation(summary = "Создать погрузчик", description = "Добавляет нового погрузчика в систему")
     public Loader createLoader(@RequestBody Loader loader) {
+        log.info("Получен запрос на создание нового погрузчика: {}", loader);
         return loaderService.createLoader(loader);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить погрузчика", description = "Удаляет погрузчика по его ID")
     public ResponseEntity<Void> deleteLoader(@PathVariable Long id) {
+        log.info("Получен запрос на удаление погрузчика: {}", id);
         loaderService.deleteLoader(id);
         return ResponseEntity.noContent().build();
     }
@@ -52,6 +55,7 @@ public class LoaderController {
     @Operation(summary = "Обновить погрузчика", description = "Обновляет погрузчика в БД")
     public ResponseEntity<Loader> updateLoader(@PathVariable Long id,
                                                @Valid @RequestBody Loader loader) {
+        log.info("Получен запрос на обновление погрузчика ID {} -> {}", id, loader);
         Loader updatedLoader = loaderService.updateLoader(id, loader);
         return ResponseEntity.ok(updatedLoader);
     }

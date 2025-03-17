@@ -91,11 +91,22 @@ public class RequestService {
 
     private Loader findBestAvailableLoader(Warehouse warehouse) {
         return loaderRepository.findAll().stream()
-                .filter(loader -> loader.getStatus() == LoaderStatus.IDLE) // Только свободные
+                .filter(loader -> {
+                    boolean isIdle = loader.getStatus() == LoaderStatus.IDLE;
+                    if (!isIdle) {
+                        log.debug("⏭️ Погрузчик {} ({}) пропущен, статус: {}", loader.getId(), loader.getName(), loader.getStatus());
+                    }
+                    return isIdle;
+                })
+                .peek(loader -> log.debug("📏 Расстояние от погрузчика {} ({}) до склада: {} м",
+                        loader.getId(), loader.getName(), getDistance(loader, warehouse)))
                 .sorted(Comparator
                         .comparing((Loader l) -> getDistance(l, warehouse)) // 1. Сортировка по расстоянию
                         .thenComparing(l -> l.getLastCompletedAt() != null ? l.getLastCompletedAt() : LocalDateTime.MIN) // 2. По времени завершения
                 )
+                .peek(loader -> log.info("✅ Лучший кандидат: {} ({}) - расстояние: {} м, последнее завершение: {}",
+                        loader.getId(), loader.getName(), getDistance(loader, warehouse),
+                        loader.getLastCompletedAt() != null ? loader.getLastCompletedAt() : "Нет данных"))
                 .findFirst()
                 .orElse(null);
     }
@@ -103,6 +114,8 @@ public class RequestService {
     private double getDistance(Loader loader, Warehouse warehouse) {
         double dx = loader.getLatitude() - warehouse.getLatitude();
         double dy = loader.getLongitude() - warehouse.getLongitude();
-        return Math.sqrt(dx * dx + dy * dy);
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        log.debug("Вычислено расстояние: {} м между погрузчиком {} и складом {}", distance, loader.getId(), warehouse.getId());
+        return distance;
     }
 }
