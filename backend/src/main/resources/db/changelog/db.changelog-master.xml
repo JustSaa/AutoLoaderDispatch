@@ -7,4 +7,5 @@
 
     <include file="db/changelog/db.changelog-001-init-schema.xml"/>
     <include file="db/changelog/db.changelog-002-seed-data.xml"/>
+    <include file="db/changelog/db.changelog-003-refresh-token.xml"/>
 </databaseChangeLog>
