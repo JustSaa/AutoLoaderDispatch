@@ -53,6 +53,15 @@ public class RequestService {
             request.setLoader(bestLoader);
             bestLoader.setStatus(LoaderStatus.BUSY); // Обновляем статус погрузчика
             loaderRepository.save(bestLoader); // Сохраняем изменения в БД
+
+            Task task = new Task();
+            task.setLoader(bestLoader);
+            task.setWarehouse(request.getWarehouse());
+            task.setRequest(request);
+            task.setDescription("Загрузить товар на складе " + request.getWarehouse().getName());
+            task.setAssignedAt(LocalDateTime.now());
+
+            request.setTask(task);
         }
 
         return requestRepository.save(request);

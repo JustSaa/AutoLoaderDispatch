@@ -33,4 +33,7 @@ public class Request {
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @OneToOne(mappedBy = "request", cascade = CascadeType.ALL)
+    private Task task;
 }
