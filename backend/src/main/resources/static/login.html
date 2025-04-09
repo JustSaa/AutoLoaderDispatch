@@ -1,0 +1,28 @@
+<!-- src/main/resources/static/login.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Вход в систему</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<main>
+    <h1>Вход</h1>
+    <form id="loginForm" novalidate>
+        <label>
+            Логин
+            <input id="username" name="username" required>
+        </label><br>
+        <label>
+            Пароль
+            <input id="password" name="password" type="password" required>
+        </label><br>
+        <button type="submit">Войти</button>
+    </form>
+    <p id="error" role="alert" style="color:red;"></p>
+</main>
+<script src="/js/app.js"></script>
+</body>
+</html>

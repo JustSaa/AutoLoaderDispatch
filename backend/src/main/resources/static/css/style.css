@@ -1,0 +1,25 @@
+/* src/main/resources/static/css/style.css */
+body {
+  font-family: sans-serif;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+h1 { margin-bottom: 1rem; }
+form label {
+  display: block;
+  margin-bottom: .5rem;
+}
+input {
+  width: 100%;
+  padding: .5rem;
+  margin-top: .25rem;
+  box-sizing: border-box;
+}
+button {
+  padding: .5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+}
+ul { list-style: none; padding: 0; }
+li { padding: .5rem 0; border-bottom: 1px solid #ccc; }
