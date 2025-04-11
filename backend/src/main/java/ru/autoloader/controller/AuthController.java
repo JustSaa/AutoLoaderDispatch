@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.autoloader.model.RefreshToken;
 import ru.autoloader.model.User;
 import ru.autoloader.model.UserRole;
+import ru.autoloader.model.dto.UserDto;
 import ru.autoloader.repository.UserRepository;
 import ru.autoloader.security.JWTUtil;
 import ru.autoloader.service.RefreshTokenService;
@@ -81,5 +83,12 @@ public class AuthController {
 
         String newAccessToken = jwtUtil.generateToken(storedToken.get().getUser().getUsername());
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+    }
+
+    @GetMapping("/api/auth/me")
+    public ResponseEntity<UserDto> whoAmI(@AuthenticationPrincipal String username) {
+        User u = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return ResponseEntity.ok(new UserDto(u.getId(), u.getUsername(), u.getRole()));
     }
 }
