@@ -2,10 +2,13 @@ package ru.autoloader.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.autoloader.exception.RequestNotFoundException;
 import ru.autoloader.model.*;
+import ru.autoloader.model.dto.LoaderAssignedEvent;
+import ru.autoloader.model.dto.NewRequestEvent;
 import ru.autoloader.repository.LoaderRepository;
 import ru.autoloader.repository.RequestRepository;
 
@@ -22,6 +25,7 @@ public class RequestService {
 
     private final RequestRepository requestRepository;
     private final LoaderRepository loaderRepository;
+    private final SimpMessagingTemplate ws;
 
     // Получить все заявки
     public List<Request> getAllRequests() {
@@ -44,15 +48,35 @@ public class RequestService {
         log.info("Создание новой заявки: {}", request);
         request.setStatus(RequestStatus.NEW);
 
-        // Находим наиболее подходящего свободного погрузчика
-        log.info("Поиск погрузчика для скалада: {}", request.getWarehouse());
         Loader bestLoader = findBestAvailableLoader(request.getWarehouse());
-
         if (bestLoader != null) {
             log.info("Погрузчик найден: {}", bestLoader);
             request.setLoader(bestLoader);
-            bestLoader.setStatus(LoaderStatus.BUSY); // Обновляем статус погрузчика
-            loaderRepository.save(bestLoader); // Сохраняем изменения в БД
+            bestLoader.setStatus(LoaderStatus.BUSY);
+
+            Task task = new Task();
+            task.setLoader(bestLoader);
+            task.setWarehouse(request.getWarehouse());
+            task.setDescription("Загрузить товар на складе " + request.getWarehouse().getName());
+            task.setAssignedAt(LocalDateTime.now());
+
+            // Ссылка в обе стороны
+            task.setRequest(request);
+            request.setTask(task);
+        }
+
+        // 1) уведомляем всех операторов о новой заявке
+        ws.convertAndSend("/topic/requests",
+                new NewRequestEvent(request.getId(), request.getWarehouse().getName(), request.getStatus()));
+
+        // 2) уведомляем конкретного погрузчика (если назначен)
+        if (request.getLoader() != null) {
+            ws.convertAndSendToUser(
+                    request.getLoader().getId().toString(),
+                    "/queue/assign",
+                    new LoaderAssignedEvent(request.getId(),
+                            request.getLoader().getId(),
+                            request.getLoader().getName()));
         }
 
         return requestRepository.save(request);

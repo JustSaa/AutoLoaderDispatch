@@ -27,6 +27,10 @@ public class Task {
     @Column(nullable = false)
     private String description; // Описание работы
 
+    @OneToOne
+    @JoinColumn(name = "request_id", nullable = false)
+    private Request request;
+
     @Column(nullable = false)
     private LocalDateTime assignedAt = LocalDateTime.now();
 }
