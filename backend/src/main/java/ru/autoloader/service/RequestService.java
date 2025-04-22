@@ -44,23 +44,20 @@ public class RequestService {
         log.info("Создание новой заявки: {}", request);
         request.setStatus(RequestStatus.NEW);
 
-        // Находим наиболее подходящего свободного погрузчика
-        log.info("Поиск погрузчика для скалада: {}", request.getWarehouse());
         Loader bestLoader = findBestAvailableLoader(request.getWarehouse());
-
         if (bestLoader != null) {
             log.info("Погрузчик найден: {}", bestLoader);
             request.setLoader(bestLoader);
-            bestLoader.setStatus(LoaderStatus.BUSY); // Обновляем статус погрузчика
-            loaderRepository.save(bestLoader); // Сохраняем изменения в БД
+            bestLoader.setStatus(LoaderStatus.BUSY);
 
             Task task = new Task();
             task.setLoader(bestLoader);
             task.setWarehouse(request.getWarehouse());
-            task.setRequest(request);
             task.setDescription("Загрузить товар на складе " + request.getWarehouse().getName());
             task.setAssignedAt(LocalDateTime.now());
 
+            // Ссылка в обе стороны
+            task.setRequest(request);
             request.setTask(task);
         }
 
