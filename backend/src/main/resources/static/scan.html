@@ -1,0 +1,50 @@
+<!-- public/scan.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Вызов погрузчика</title>
+</head>
+<body>
+<main>
+  <h1>Вызов погрузчика</h1>
+  <p id="status">Загрузка...</p>
+  <p><a href="/dashboard.html">Перейти в личный кабинет</a></p>
+</main>
+
+<script type="module">
+    import { auth, api } from './app.js';
+
+    const params = new URLSearchParams(location.search);
+    const warehouseId = params.get('warehouseId');
+    const statusEl = document.getElementById('status');
+
+    if (!warehouseId) {
+      statusEl.textContent = 'Ошибка: Не указан ID склада.';
+      throw new Error('No warehouseId');
+    }
+
+    try {
+      auth.ensureAuthenticated(); // если не залогинен — перекинет сам
+    } catch (e) {
+      // Добавляем редирект обратно после логина
+      localStorage.setItem('postLoginRedirect', location.pathname + location.search);
+      location.href = '/login.html';
+    }
+
+    // Если всё ок — создаем заявку
+    api.request('/api/requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user: { id: /* текущий userId — позже вытащим из токена */ },
+        warehouse: { id: Number(warehouseId) }
+      })
+    }).then(req => {
+      statusEl.textContent = `Заявка #${req.id} создана. Статус: ${req.status}`;
+    }).catch(err => {
+      statusEl.textContent = `Ошибка: ${err}`;
+    });
+  </script>
+</body>
+</html>

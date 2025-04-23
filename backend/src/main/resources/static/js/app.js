@@ -1,5 +1,3 @@
-/* app.js */
-
 /* ========== МОДУЛЬ: auth ========== */
 const auth = {
   async login(username, password) {
@@ -12,6 +10,16 @@ const auth = {
     const { accessToken, refreshToken } = await res.json();
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
+  },
+
+  async register(username, password, role) {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, role })
+    });
+    if (!res.ok) throw await res.text();
+    return res.json();
   },
 
   logout() {
@@ -81,11 +89,13 @@ let currentUser = null;
 
 /* ========== DASHBOARD ИНИЦИАЛИЗАЦИЯ ========== */
 async function initDashboard() {
-  // 0) получить информацию о залогиненном пользователе
   currentUser = await api.whoAmI();
 
-  // 1) загрузить склады в селект
   const select = document.getElementById('warehouseSelect');
+  const ul = document.getElementById('requestsList');
+  const form = document.getElementById('requestForm');
+  const errP = document.getElementById('requestError');
+
   try {
     const whs = await api.fetchWarehouses();
     whs.forEach(w => {
@@ -97,11 +107,6 @@ async function initDashboard() {
   } catch (e) {
     console.error('Не удалось загрузить склады:', e);
   }
-
-  // 2) повесить сабмит на форму создания заявки
-  const form = document.getElementById('requestForm');
-  const errP = document.getElementById('requestError');
-  const ul   = document.getElementById('requestsList');
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -116,11 +121,10 @@ async function initDashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user:      { id: currentUser.id },
+          user: { id: currentUser.id },
           warehouse: { id: Number(wid) }
         })
       });
-      // отрисовать новую заявку наверху списка
       const li = document.createElement('li');
       li.textContent = `#${newReq.id}: ${newReq.status}, погрузчик: ${newReq.loader?.name || '—'}`;
       ul.prepend(li);
@@ -130,7 +134,6 @@ async function initDashboard() {
     }
   });
 
-  // 3) первоначально вывести все заявки
   try {
     const reqs = await api.fetchRequests();
     reqs.forEach(r => {
@@ -142,15 +145,13 @@ async function initDashboard() {
     console.error('Не удалось загрузить заявки:', e);
   }
 
-  // 4) кнопка выхода
   document.getElementById('logout').addEventListener('click', () => auth.logout());
 }
 
-/* ========== DOMContentLoaded ========= */
+/* ========== DOMContentLoaded ========== */
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-    // — Страница логина —
     loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       const u = document.getElementById('username').value.trim();
@@ -166,8 +167,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const registerForm = document.getElementById('registerForm');
+  if (registerForm) {
+    registerForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const u = document.getElementById('regUsername').value.trim();
+      const p = document.getElementById('regPassword').value;
+      const r = document.getElementById('regRole').value;
+      const err = document.getElementById('registerError');
+      err.textContent = '';
+      try {
+        await auth.register(u, p, r);
+        alert('Регистрация прошла успешно. Выполните вход.');
+        location.href = '/login.html';
+      } catch (error) {
+        err.textContent = error;
+      }
+    });
+  }
+
   if (location.pathname.endsWith('dashboard.html')) {
-    // — Страница дашборда —
     try {
       auth.ensureAuthenticated();
       initDashboard();
