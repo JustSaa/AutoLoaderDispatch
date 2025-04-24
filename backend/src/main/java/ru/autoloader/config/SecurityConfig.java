@@ -17,11 +17,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+
+    public SecurityConfig(JWTUtil jwtUtil, UserDetailsService userDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,6 +37,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll() // Доступ для логина
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll() // Доступ для регистрации
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                        // Разрешаем GET для статических страниц логина и регистрации:
+                        .requestMatchers(HttpMethod.GET, "/login.html", "/register.html", "/app.js", "/styles.css").permitAll()
                         .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
                 )
                 .addFilterBefore(new JWTAuthenticationFilter(jwtUtil, userDetailsService),

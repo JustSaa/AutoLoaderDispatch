@@ -26,4 +26,17 @@
                                  referencedTableName="users" referencedColumnNames="id"
                                  onDelete="CASCADE"/>
     </changeSet>
+    <changeSet id="add-request-id-to-tasks" author="salavat">
+        <addColumn tableName="tasks">
+            <column name="request_id" type="bigint"/>
+        </addColumn>
+
+        <addForeignKeyConstraint
+                constraintName="fk_tasks_request"
+                baseTableName="tasks"
+                baseColumnNames="request_id"
+                referencedTableName="requests"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
 </databaseChangeLog>

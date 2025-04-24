@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/autoloader_dispatch
+    url: jdbc:postgresql://localhost:5432/autoloader_dispatch
     username: postgres
     password: mypassword
     driver-class-name: org.postgresql.Driver
@@ -12,6 +12,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        ddl-auto: none
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
